@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PhishGuard — Blocked</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: #060612;
+      color: #f0f0ff;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Animated background orbs */
+    .orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.35;
+      pointer-events: none;
+      animation: drift 8s ease-in-out infinite alternate;
+    }
+    .orb-1 { width: 600px; height: 600px; background: radial-gradient(circle, #f43f5e, transparent); top: -200px; left: -200px; }
+    .orb-2 { width: 400px; height: 400px; background: radial-gradient(circle, #7c3aed, transparent); bottom: -150px; right: -100px; animation-delay: -4s; }
+    @keyframes drift {
+      from { transform: translate(0, 0) scale(1); }
+      to   { transform: translate(30px, 20px) scale(1.05); }
+    }
+
+    .card {
+      position: relative;
+      z-index: 10;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(244,63,94,0.3);
+      border-radius: 28px;
+      padding: 56px 48px;
+      max-width: 640px;
+      width: 90vw;
+      text-align: center;
+      box-shadow: 0 0 60px rgba(244,63,94,0.15), 0 24px 80px rgba(0,0,0,0.5);
+      backdrop-filter: blur(20px);
+    }
+
+    .shield-icon {
+      width: 88px;
+      height: 88px;
+      background: linear-gradient(135deg, rgba(244,63,94,0.25), rgba(220,38,38,0.15));
+      border: 2px solid rgba(244,63,94,0.4);
+      border-radius: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 32px;
+      animation: pulse-danger 2s ease-in-out infinite;
+    }
+    @keyframes pulse-danger {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(244,63,94,0.4); }
+      50%       { box-shadow: 0 0 0 16px rgba(244,63,94,0); }
+    }
+    .shield-icon svg { width: 44px; height: 44px; color: #f43f5e; }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(244,63,94,0.12);
+      border: 1px solid rgba(244,63,94,0.35);
+      color: #f43f5e;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 6px 14px;
+      border-radius: 100px;
+      margin-bottom: 24px;
+    }
+    .badge::before { content: ''; width: 7px; height: 7px; background: #f43f5e; border-radius: 50%; animation: blink 1.2s ease-in-out infinite; }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+    h1 {
+      font-size: 2.4rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #f43f5e, #fb7185);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 16px;
+      line-height: 1.15;
+    }
+
+    .subtitle {
+      font-size: 1rem;
+      color: #9898b8;
+      line-height: 1.7;
+      margin-bottom: 32px;
+    }
+
+    .url-box {
+      background: rgba(244,63,94,0.06);
+      border: 1px solid rgba(244,63,94,0.2);
+      border-radius: 12px;
+      padding: 14px 18px;
+      font-size: 0.82rem;
+      color: #fb7185;
+      font-family: 'JetBrains Mono', monospace;
+      word-break: break-all;
+      margin-bottom: 32px;
+      text-align: left;
+    }
+
+    .details-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 36px;
+    }
+    .detail-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 12px;
+      padding: 14px;
+      text-align: left;
+    }
+    .detail-label { font-size: 0.7rem; font-weight: 600; color: #5a5a7a; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
+    .detail-value { font-size: 0.9rem; font-weight: 600; color: #f0f0ff; }
+    .detail-value.danger { color: #f43f5e; }
+
+    .actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+    .btn-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 32px;
+      background: linear-gradient(135deg, #f43f5e, #dc2626);
+      border: none;
+      border-radius: 12px;
+      color: #fff;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.2s;
+      text-decoration: none;
+    }
+    .btn-back:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(244,63,94,0.4); }
+
+    .btn-proceed {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 24px;
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 12px;
+      color: #5a5a7a;
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .btn-proceed:hover { border-color: rgba(255,255,255,0.2); color: #9898b8; }
+
+    .footer-note {
+      margin-top: 28px;
+      font-size: 0.75rem;
+      color: #3a3a5a;
+    }
+  </style>
+</head>
+<body>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+
+  <div class="card">
+    <div class="shield-icon">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m0-10.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.75c0 5.592 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.57-.598-3.75h-.152c-3.196 0-6.1-1.249-8.25-3.286zm0 13.036h.008v.008H12v-.008z" />
+      </svg>
+    </div>
+
+    <div class="badge">Phishing Blocked</div>
+
+    <h1>This site is<br>Dangerous!</h1>
+    <p class="subtitle">
+      PhishGuard AI has detected this website as a <strong>phishing attempt</strong>.
+      It may try to steal your passwords, financial information, or personal data.
+    </p>
+
+    <div class="url-box" id="blocked-url">Loading…</div>
+
+    <div class="details-grid">
+      <div class="detail-card">
+        <div class="detail-label">Risk Score</div>
+        <div class="detail-value danger" id="risk-score">—</div>
+      </div>
+      <div class="detail-card">
+        <div class="detail-label">Threat Level</div>
+        <div class="detail-value danger" id="threat-level">High</div>
+      </div>
+      <div class="detail-card">
+        <div class="detail-label">Detection</div>
+        <div class="detail-value">ML + Heuristics</div>
+      </div>
+      <div class="detail-card">
+        <div class="detail-label">Blocked By</div>
+        <div class="detail-value">PhishGuard v2.1</div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn-back" onclick="goBack()">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" width="16" height="16">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
+        </svg>
+        Go Back to Safety
+      </button>
+      <button class="btn-proceed" onclick="proceedAnyway()">
+        Proceed anyway (unsafe)
+      </button>
+    </div>
+
+    <p class="footer-note">Protected by PhishGuard AI · <a href="#" style="color:#3a3a5a" onclick="chrome.tabs.create({url:'http://localhost:8000'})">Open Dashboard</a></p>
+  </div>
+
+  <script>
+    // Parse the blocked URL from query params
+    const params = new URLSearchParams(location.search);
+    const url    = params.get('url') || 'Unknown URL';
+    const score  = parseFloat(params.get('score') || '75');
+
+    document.getElementById('blocked-url').textContent = url;
+    document.getElementById('risk-score').textContent  = `${Math.round(score)} / 100`;
+    document.getElementById('threat-level').textContent = score >= 85 ? 'Critical' : score >= 65 ? 'High' : 'Suspicious';
+
+    function goBack() {
+      history.length > 1 ? history.back() : window.close();
+    }
+
+    function proceedAnyway() {
+      if (confirm('⚠️ This site has been identified as dangerous.\n\nAre you absolutely sure you want to continue? Your data may be at risk.')) {
+        location.href = url;
+      }
+    }
+  </script>
+</body>
+</html>

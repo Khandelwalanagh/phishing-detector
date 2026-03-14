@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>PhishGuard</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+
+<!-- ── Header ──────────────────────────────────────────────── -->
+<header class="header">
+  <div class="logo">
+    <img src="icons/icon32.png" alt="Logo" width="22" height="22" />
+    <span>PhishGuard</span>
+  </div>
+  <div class="header-badge" id="header-badge">
+    <span class="dot" id="header-dot"></span>
+    <span id="header-status">AI Ready</span>
+  </div>
+</header>
+
+<!-- ── Current Page Banner ─────────────────────────────────── -->
+<div id="page-banner" class="page-banner">
+  <div class="page-banner-inner">
+    <svg class="banner-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" />
+    </svg>
+    <span id="page-url-label" class="page-url-text">Scanning current page...</span>
+  </div>
+  <button id="scan-current-btn" class="btn-scan-now" title="Scan this page">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" width="14" height="14">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+    </svg>
+    Scan
+  </button>
+</div>
+
+<!-- ── Mini Dashboard ──────────────────────────────────────── -->
+<div class="mini-stats" id="mini-stats">
+  <div class="mini-stat">
+    <div class="mini-stat-val" id="ms-urls">0</div>
+    <div class="mini-stat-label">URLs</div>
+  </div>
+  <div class="mini-stat">
+    <div class="mini-stat-val" id="ms-emails">0</div>
+    <div class="mini-stat-label">Emails</div>
+  </div>
+  <div class="mini-stat" id="ms-threats-card">
+    <div class="mini-stat-val danger" id="ms-threats">0</div>
+    <div class="mini-stat-label">Threats</div>
+  </div>
+  <div class="mini-stat">
+    <div class="mini-stat-val" id="ms-uptime">—</div>
+    <div class="mini-stat-label">Uptime</div>
+  </div>
+</div>
+
+<!-- ── Tabs ────────────────────────────────────────────────── -->
+<div class="tab-bar" role="tablist">
+  <button class="tab-btn active" id="tab-url-btn" data-tab="url" role="tab" aria-selected="true">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" />
+    </svg>
+    URL
+  </button>
+  <button class="tab-btn" id="tab-email-btn" data-tab="email" role="tab" aria-selected="false">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+    </svg>
+    Scan File
+  </button>
+  <button class="tab-btn" id="tab-history-btn" data-tab="history" role="tab" aria-selected="false">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+    History
+  </button>
+  <button class="tab-btn" id="tab-settings-btn" data-tab="settings" role="tab" aria-selected="false">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" />
+      <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+    </svg>
+    Settings
+  </button>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- URL Tab                                                    -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div id="tab-url" class="tab-panel active">
+  <div class="section">
+    <div class="input-row">
+      <input id="url-input" type="text" placeholder="Paste any URL to scan…" autocomplete="off" spellcheck="false" />
+      <button class="btn-go" id="url-btn">
+        <span id="url-btn-text">Scan</span>
+        <span id="url-btn-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" width="14" height="14">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+          </svg>
+        </span>
+      </button>
+    </div>
+    <div class="input-row" style="margin-top: 10px;">
+      <label class="toggle-row">
+        <input type="checkbox" id="url-deep-scan" />
+        <span class="toggle-lbl">Deep Scan (WHOIS & Redirections)</span>
+      </label>
+    </div>
+    <div id="url-error" class="error-msg" style="display:none"></div>
+  </div>
+
+  <!-- Result -->
+  <div id="url-result" class="result-area" style="display:none">
+    <div class="result-top">
+      <div class="gauge-wrap">
+        <svg viewBox="0 0 160 90" width="160" height="90">
+          <path class="gauge-track" d="M16 86 A62 62 0 0 1 144 86"/>
+          <path class="gauge-fill" id="url-gauge-fill" d="M16 86 A62 62 0 0 1 144 86"
+            stroke-dasharray="194.8" stroke-dashoffset="194.8" stroke="var(--safe)"/>
+        </svg>
+        <div class="gauge-inner">
+          <span class="gauge-score" id="url-score">0</span>
+          <span class="gauge-sub">/ 100</span>
+        </div>
+      </div>
+      <div class="result-meta">
+        <div class="risk-badge safe" id="url-badge">Scanning…</div>
+        <div class="result-sub" id="url-conf"></div>
+        <div class="result-sub" id="url-source"></div>
+      </div>
+    </div>
+    <div class="reasons-list" id="url-reasons"></div>
+    <details class="raw-toggle" id="url-raw" style="display:none">
+      <summary>Raw Features</summary>
+      <div class="feature-grid" id="url-features"></div>
+    </details>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- Email Tab                                                  -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div id="tab-email" class="tab-panel">
+  <div class="section">
+    <div class="file-drop-zone" id="file-drop-zone">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z" />
+      </svg>
+      <span>Drag & Drop an Image or PDF</span>
+      <span class="drop-sub">Or click to browse</span>
+      <input type="file" id="file-input" accept="image/*,.pdf" style="display:none" />
+    </div>
+    <div class="divider"></div>
+    <div style="text-align:center; font-size:10px; color:var(--text-3); margin-bottom: 6px;">OR PASTE TEXT</div>
+    <textarea id="email-input" placeholder="Paste email body or source…"></textarea>
+    <button class="btn-go btn-full" id="email-btn">
+      <span id="email-btn-text">Analyse Source</span>
+      <span id="email-btn-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" width="14" height="14">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+        </svg>
+      </span>
+    </button>
+    <div id="email-error" class="error-msg" style="display:none"></div>
+  </div>
+
+  <div id="email-result" class="result-area" style="display:none">
+    <div class="result-top">
+      <div class="gauge-wrap">
+        <svg viewBox="0 0 160 90" width="160" height="90">
+          <path class="gauge-track" d="M16 86 A62 62 0 0 1 144 86"/>
+          <path class="gauge-fill" id="email-gauge-fill" d="M16 86 A62 62 0 0 1 144 86"
+            stroke-dasharray="194.8" stroke-dashoffset="194.8" stroke="var(--safe)"/>
+        </svg>
+        <div class="gauge-inner">
+          <span class="gauge-score" id="email-score">0</span>
+          <span class="gauge-sub">/ 100</span>
+        </div>
+      </div>
+      <div class="result-meta">
+        <div class="risk-badge safe" id="email-badge">Analysing…</div>
+        <div class="result-sub" id="email-conf"></div>
+      </div>
+    </div>
+    <div class="reasons-list" id="email-reasons"></div>
+    <button id="report-threat-btn" class="report-btn" style="display:none;">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3v1.5M3 21v-6m0 0l2.77-.693a9 9 0 016.208.682l.108.054a9 9 0 006.086.71l3.114-.732a48.524 48.524 0 01-.005-10.499l-3.11.732a9 9 0 01-6.085-.711l-.108-.054a9 9 0 00-6.208-.682L3 4.5M3 15V4.5" /></svg>
+      Report Threat to Safe Browsing
+    </button>
+
+    <div id="email-links-section" style="display:none">
+      <div class="section-label">Links Found (click to scan)</div>
+      <div class="links-list" id="email-links-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- History Tab                                               -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div id="tab-history" class="tab-panel">
+  <div class="history-hdr">
+    <span class="section-label">Recent Scans</span>
+    <button class="btn-link" id="clear-history-btn">Clear all</button>
+  </div>
+  <div id="history-list" class="history-list">
+    <div class="empty-state">No scans yet.</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- Settings Tab                                              -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div id="tab-settings" class="tab-panel">
+  <div class="settings-section">
+    <div class="setting-row">
+      <div>
+        <div class="setting-label">Auto-scan current page</div>
+        <div class="setting-sub">Automatically check every page you visit</div>
+      </div>
+      <label class="toggle">
+        <input type="checkbox" id="setting-auto-scan" checked />
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+
+    <div class="setting-row">
+      <div>
+        <div class="setting-label">Link hover tooltips</div>
+        <div class="setting-sub">Show risk score when hovering over links</div>
+      </div>
+      <label class="toggle">
+        <input type="checkbox" id="setting-tooltips" checked />
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+
+    <div class="setting-row">
+      <div>
+        <div class="setting-label">Click interception</div>
+        <div class="setting-sub">Warn before opening suspicious links</div>
+      </div>
+      <label class="toggle">
+        <input type="checkbox" id="setting-intercept" checked />
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+
+    <div class="setting-row">
+      <div>
+        <div class="setting-label">Desktop notifications</div>
+        <div class="setting-sub">Show alerts for high-risk pages</div>
+      </div>
+      <label class="toggle">
+        <input type="checkbox" id="setting-notifications" checked />
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="setting-label" style="margin-bottom:8px">Backend API URL</div>
+    <div class="input-row">
+      <input id="setting-api-url" type="text" value="http://localhost:8000" style="flex:1" />
+      <button class="btn-go" id="save-settings-btn">Save</button>
+    </div>
+    <div id="settings-msg" class="error-msg" style="display:none; color:var(--safe);"></div>
+  </div>
+</div>
+
+<!-- ── Footer ──────────────────────────────────────────────── -->
+<footer class="footer">
+  <a href="#" id="open-docs-btn">API Docs</a>
+  <span>·</span>
+  <a href="#" id="open-about-btn">About</a>
+  <span>·</span>
+  <span>© 2026 Anagh Khandelwal</span>
+</footer>
+
+<script src="popup.js"></script>
+</body>
+</html>

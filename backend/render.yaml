@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: phishguard-api
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    envVars:
+      - key: PORT
+        value: 10000        # Render free tier uses port 10000
+      - key: ALLOWED_ORIGINS
+        value: "*"
+    healthCheckPath: /api/health

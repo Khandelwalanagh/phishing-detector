@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PhishGuard — About & Copyright</title>
+  <meta name="description" content="PhishGuard is an AI-powered phishing detection tool built by Anagh Khandelwal." />
+  <meta name="theme-color" content="#070714" />
+  <link rel="icon"
+    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>" />
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: #070714;
+      color: #f0f0ff;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── Orbs ───────────────────────────────── */
+    .orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(100px);
+      opacity: 0.28;
+      pointer-events: none;
+    }
+
+    .orb-1 {
+      width: 700px;
+      height: 700px;
+      background: radial-gradient(circle, #6c63ff, transparent);
+      top: -300px;
+      left: -200px;
+    }
+
+    .orb-2 {
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, #22d3a5, transparent);
+      bottom: -200px;
+      right: -100px;
+    }
+
+    .orb-3 {
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, #f59e0b, transparent);
+      top: 40%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    /* ── Wrapper ────────────────────────────── */
+    .wrapper {
+      position: relative;
+      z-index: 1;
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 60px 24px 80px;
+    }
+
+    /* ── Nav back ───────────────────────────── */
+    .nav-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: #5a5a7a;
+      font-size: 0.85rem;
+      text-decoration: none;
+      transition: color 0.2s;
+      margin-bottom: 48px;
+    }
+
+    .nav-back:hover {
+      color: #9898b8;
+    }
+
+    .nav-back svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    /* ── Hero ───────────────────────────────── */
+    .hero {
+      text-align: center;
+      margin-bottom: 64px;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(108, 99, 255, 0.12);
+      border: 1px solid rgba(108, 99, 255, 0.3);
+      color: #9d97ff;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 6px 16px;
+      border-radius: 100px;
+      margin-bottom: 28px;
+    }
+
+    .hero-shield {
+      width: 96px;
+      height: 96px;
+      background: linear-gradient(135deg, rgba(108, 99, 255, 0.2), rgba(34, 211, 165, 0.1));
+      border: 2px solid rgba(108, 99, 255, 0.35);
+      border-radius: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 28px;
+      box-shadow: 0 0 40px rgba(108, 99, 255, 0.2);
+    }
+
+    .hero-shield svg {
+      width: 48px;
+      height: 48px;
+      color: #9d97ff;
+    }
+
+    .hero h1 {
+      font-size: 3rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #f0f0ff, #9d97ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1.1;
+      margin-bottom: 12px;
+    }
+
+    .hero .tagline {
+      font-size: 1rem;
+      color: #6868a0;
+      font-weight: 400;
+    }
+
+    /* ── Cards ──────────────────────────────── */
+    .card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: 20px;
+      padding: 32px;
+      margin-bottom: 20px;
+    }
+
+    .card-title {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #4a4a6a;
+      margin-bottom: 20px;
+    }
+
+    /* ── Author block ───────────────────────── */
+    .author-block {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .author-avatar {
+      width: 72px;
+      height: 72px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, #6c63ff, #22d3a5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      flex-shrink: 0;
+      box-shadow: 0 8px 24px rgba(108, 99, 255, 0.3);
+    }
+
+    .author-name {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #f0f0ff;
+      margin-bottom: 4px;
+    }
+
+    .author-role {
+      font-size: 0.88rem;
+      color: #9d97ff;
+      font-weight: 500;
+      margin-bottom: 8px;
+    }
+
+    .author-desc {
+      font-size: 0.82rem;
+      color: #5a5a7a;
+      line-height: 1.6;
+    }
+
+    /* ── Tech stack ─────────────────────────── */
+    .tech-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 12px;
+    }
+
+    .tech-item {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 12px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .tech-icon {
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+
+    .tech-label {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #9898b8;
+    }
+
+    /* ── Features list ──────────────────────── */
+    .feature-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .feature-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      font-size: 0.9rem;
+      color: #9898b8;
+      line-height: 1.5;
+    }
+
+    .feature-list li .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #6c63ff;
+      flex-shrink: 0;
+      margin-top: 7px;
+    }
+
+    /* ── Copyright footer ───────────────────── */
+    .copyright-box {
+      background: rgba(108, 99, 255, 0.06);
+      border: 1px solid rgba(108, 99, 255, 0.18);
+      border-radius: 16px;
+      padding: 28px 32px;
+      text-align: center;
+      margin-top: 28px;
+    }
+
+    .copyright-year {
+      font-size: 2rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #6c63ff, #9d97ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 8px;
+    }
+
+    .copyright-text {
+      font-size: 0.9rem;
+      color: #6868a0;
+      line-height: 1.8;
+    }
+
+    .copyright-text strong {
+      color: #9d97ff;
+    }
+
+    /* ── License badge ──────────────────────── */
+    .license-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(34, 211, 165, 0.08);
+      border: 1px solid rgba(34, 211, 165, 0.2);
+      color: #22d3a5;
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 6px 14px;
+      border-radius: 8px;
+      margin-top: 16px;
+    }
+
+    /* ── Version pill ───────────────────────── */
+    .version-pill {
+      display: inline-flex;
+      gap: 16px;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 12px;
+      padding: 12px 20px;
+      margin-top: 20px;
+      font-size: 0.8rem;
+      color: #4a4a6a;
+    }
+
+    .version-pill span {
+      color: #6c63ff;
+      font-weight: 600;
+    }
+
+    /* ── Back home link ─────────────────────── */
+    .home-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 40px;
+      padding: 14px 28px;
+      background: linear-gradient(135deg, #6c63ff, #9d5cff);
+      border-radius: 12px;
+      color: #fff;
+      font-weight: 600;
+      font-size: 0.9rem;
+      text-decoration: none;
+      transition: 0.2s;
+    }
+
+    .home-link:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(108, 99, 255, 0.35);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+
+  <div class="wrapper">
+
+    <a href="/" class="nav-back">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+      </svg>
+      Back to Dashboard
+    </a>
+
+    <!-- Hero -->
+    <section class="hero">
+      <div class="hero-badge">About PhishGuard</div>
+      <div class="hero-shield">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.6"
+          stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.57-.598-3.75h-.152c-3.196 0-6.1-1.249-8.25-3.286z" />
+        </svg>
+      </div>
+      <h1>PhishGuard</h1>
+      <p class="tagline">AI-Powered Phishing Detection &amp; Protection</p>
+    </section>
+
+    <!-- Author -->
+    <div class="card">
+      <div class="card-title">Creator &amp; Developer</div>
+      <div class="author-block">
+        <div class="author-avatar">👨‍💻</div>
+        <div>
+          <div class="author-name">Anagh Khandelwal</div>
+          <div class="author-role">Full-Stack Developer &amp; Cyber Security Researcher</div>
+          <div class="author-desc">Designed and built PhishGuard — an AI-powered phishing detection system combining
+            machine learning, heuristic analysis, and Gemini AI to protect users from cyber threats in real time.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Features -->
+    <div class="card">
+      <div class="card-title">Features</div>
+      <ul class="feature-list">
+        <li>
+          <div class="dot"></div>Real-time URL phishing detection using ML + 20+ heuristic signals
+        </li>
+        <li>
+          <div class="dot"></div>Email threat analysis with link extraction and scanning
+        </li>
+        <li>
+          <div class="dot"></div>PDF document analysis powered by Gemini AI vision
+        </li>
+        <li>
+          <div class="dot"></div>Deep Scan: WHOIS domain age lookup + redirect chain tracing
+        </li>
+        <li>
+          <div class="dot"></div>Image analysis for visual phishing detection
+        </li>
+        <li>
+          <div class="dot"></div>Chrome extension with auto-scan, blocking, and badge alerts
+        </li>
+        <li>
+          <div class="dot"></div>Gmail integration with inline threat analysis
+        </li>
+        <li>
+          <div class="dot"></div>Phishing site blocker — redirects dangerous sites before they load
+        </li>
+        <li>
+          <div class="dot"></div>Real-time statistics dashboard with server uptime and threat counts
+        </li>
+      </ul>
+    </div>
+
+    <!-- Tech stack -->
+    <div class="card">
+      <div class="card-title">Technology Stack</div>
+      <div class="tech-grid">
+        <div class="tech-item"><span class="tech-icon">⚡</span><span class="tech-label">FastAPI</span></div>
+        <div class="tech-item"><span class="tech-icon">🤖</span><span class="tech-label">Gemini AI</span></div>
+        <div class="tech-item"><span class="tech-icon">🧠</span><span class="tech-label">scikit-learn</span></div>
+        <div class="tech-item"><span class="tech-icon">🧩</span><span class="tech-label">Chrome MV3</span></div>
+        <div class="tech-item"><span class="tech-icon">📄</span><span class="tech-label">PyMuPDF</span></div>
+        <div class="tech-item"><span class="tech-icon">🌐</span><span class="tech-label">python-whois</span></div>
+        <div class="tech-item"><span class="tech-icon">🖼️</span><span class="tech-label">Pillow</span></div>
+        <div class="tech-item"><span class="tech-icon">🎨</span><span class="tech-label">Vanilla CSS</span></div>
+      </div>
+    </div>
+
+    <!-- Copyright -->
+    <div class="copyright-box">
+      <div class="copyright-year">© 2026</div>
+      <div class="copyright-text">
+        <strong>PhishGuard v2.1.0</strong> — All Rights Reserved<br>
+        Designed &amp; Developed by <strong>Anagh Khandelwal</strong><br><br>
+        This software is provided for educational and research purposes.<br>
+        Unauthorised reproduction or distribution is prohibited without<br>explicit written permission from the author.
+      </div>
+      <div>
+        <span class="license-badge">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+            width="12" height="12">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          Proprietary License
+        </span>
+      </div>
+      <div class="version-pill">
+        <span>Version</span> 2.1.0
+        &nbsp;·&nbsp;
+        <span>Build</span> 2026-03
+        &nbsp;·&nbsp;
+        <span>Status</span> Stable
+      </div>
+    </div>
+
+    <div style="text-align:center">
+      <a href="/" class="home-link">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+          width="16" height="16">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+        </svg>
+        Back to Dashboard
+      </a>
+    </div>
+
+  </div>
+</body>
+
+</html>

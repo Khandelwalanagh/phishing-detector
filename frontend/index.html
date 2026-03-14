@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PhishGuard — AI Phishing Detection</title>
+  <meta name="description" content="Detect phishing URLs, emails, images and PDFs instantly using machine learning, WHOIS lookups, redirect tracing and Gemini AI vision — free and blazing fast." />
+  <meta name="theme-color" content="#070714" />
+  <meta property="og:title" content="PhishGuard — AI Phishing Detection" />
+  <meta property="og:description" content="Real-time AI phishing protection powered by ML + Gemini AI." />
+  <meta property="og:type" content="website" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>" />
+</head>
+<body>
+
+<!-- Background orbs -->
+<div class="bg-orb bg-orb-1" aria-hidden="true"></div>
+<div class="bg-orb bg-orb-2" aria-hidden="true"></div>
+<div class="bg-orb bg-orb-3" aria-hidden="true"></div>
+
+<div class="app-wrapper">
+
+  <!-- ── Hero ─────────────────────────────────────────────── -->
+  <header class="hero">
+    <div class="hero-badge">
+      <span class="dot"></span>
+      AI-Powered Security
+    </div>
+    <h1>Spot Phishing<br>Before It Strikes</h1>
+    <p>Analyse URLs, emails, images and PDFs for phishing indicators using ML + Gemini AI — with WHOIS lookups and redirect tracing built in.</p>
+  </header>
+
+  <!-- ── Stats bar ─────────────────────────────────────────── -->
+  <div class="stats-bar" id="stats-bar">
+    <div class="stat-card">
+      <div class="stat-value" id="stat-total-urls">0</div>
+      <div class="stat-label">URLs Checked</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="stat-total-emails">0</div>
+      <div class="stat-label">Emails Analysed</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="stat-phishing-caught">0</div>
+      <div class="stat-label">Threats Caught</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="stat-uptime">—</div>
+      <div class="stat-label">Server Uptime</div>
+    </div>
+  </div>
+
+  <!-- ── Tab switcher ─────────────────────────────────────── -->
+  <div class="tab-switcher" role="tablist">
+    <button class="tab-btn active" id="tab-url-btn" role="tab" aria-selected="true" aria-controls="tab-url" onclick="switchTab('url')">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" />
+      </svg>
+      URL Checker
+    </button>
+    <button class="tab-btn" id="tab-email-btn" role="tab" aria-selected="false" aria-controls="tab-email" onclick="switchTab('email')">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+      </svg>
+      Email Checker
+    </button>
+    <button class="tab-btn" id="tab-pdf-btn" role="tab" aria-selected="false" aria-controls="tab-pdf" onclick="switchTab('pdf')">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+      </svg>
+      PDF Checker
+    </button>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- URL Tab Panel                                          -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <div id="tab-url" class="tab-panel active" role="tabpanel">
+    <div class="checker-card">
+      <div class="input-group">
+        <div class="input-wrapper">
+          <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" />
+          </svg>
+          <input
+            type="text"
+            id="url-input"
+            placeholder="Paste a URL to analyse, e.g. https://example.com"
+            autocomplete="off"
+            autocorrect="off"
+            spellcheck="false"
+            onkeydown="if(event.key==='Enter') checkURL()"
+          />
+        </div>
+        <button class="btn-analyse" id="url-btn" onclick="checkURL()">
+          <span id="url-btn-text">Analyse</span>
+          <svg id="url-btn-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" width="16" height="16">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+      </div>
+
+      <div style="margin-top: 16px; margin-bottom: 8px;">
+        <label style="display:inline-flex; align-items:center; gap:8px; cursor:pointer;">
+          <input type="checkbox" id="url-deep-scan" style="width:16px; height:16px; cursor:pointer;" />
+          <span style="font-size:14px; color:var(--text-3); font-weight:500;">Deep Scan (Trace Redirects & WHOIS Domain Check)</span>
+        </label>
+      </div>
+
+      <div id="url-error" style="display:none" class="error-banner">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" width="18" height="18">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+        </svg>
+        <span id="url-error-msg"></span>
+      </div>
+
+      <!-- URL Result -->
+      <div id="url-result" class="result-panel">
+        <div class="result-layout">
+          <div class="gauge-container">
+            <div class="gauge-svg-wrap">
+              <svg viewBox="0 0 200 120" width="200" height="120">
+                <!-- Track arc: half-circle from 180° to 0° -->
+                <path class="gauge-track"
+                  d="M 20 110 A 80 80 0 0 1 180 110"
+                />
+                <path class="gauge-fill" id="url-gauge-fill"
+                  d="M 20 110 A 80 80 0 0 1 180 110"
+                  stroke-dasharray="251.2"
+                  stroke-dashoffset="251.2"
+                  stroke="var(--safe)"
+                />
+              </svg>
+              <div class="gauge-center-text">
+                <div class="gauge-score" id="url-gauge-score">0</div>
+                <div class="gauge-sublabel">Risk Score</div>
+              </div>
+            </div>
+            <div class="risk-badge safe" id="url-risk-badge">Analysing…</div>
+            <div class="confidence-row" id="url-confidence-row"></div>
+          </div>
+
+          <div class="reasons-section">
+            <h3>Detection Signals</h3>
+            <div id="url-reasons-list"></div>
+            <details class="features-toggle" id="url-features-section" style="display:none">
+              <summary>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" width="14" height="14">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25H12" />
+                </svg>
+                Raw Feature Values
+              </summary>
+              <div class="feature-grid" id="url-feature-grid"></div>
+            </details>
+            <button id="url-report-btn" class="report-btn" style="display:none; margin-top:20px;">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3v1.5M3 21v-6m0 0l2.77-.693a9 9 0 016.208.682l.108.054a9 9 0 006.086.71l3.114-.732a48.524 48.524 0 01-.005-10.499l-3.11.732a9 9 0 01-6.085-.711l-.108-.054a9 9 0 00-6.208-.682L3 4.5M3 15V4.5" /></svg>
+              Report Threat to Google Safe Browsing
+            </button>
+            <!-- AI Explanation slot -->
+            <div id="url-ai-explanation" style="display:none; margin-top:20px;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- Email Tab Panel                                        -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <div id="tab-email" class="tab-panel" role="tabpanel">
+    <div class="checker-card">
+      <div id="file-drop-zone" style="border: 2px dashed rgba(255,255,255,0.2); border-radius:12px; padding:30px; text-align:center; cursor:pointer; margin-bottom: 20px; transition: 0.3s; background:rgba(0,0,0,0.1);">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 48px; height: 48px; color: var(--accent-l); margin-bottom: 12px;">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+        </svg>
+        <div style="font-size: 16px; font-weight: 500; color:var(--text); margin-bottom: 4px;">Drag & Drop an Image or PDF Document</div>
+        <div style="font-size: 13px; color:var(--text-3);">Or click to select a file</div>
+        <input type="file" id="file-input" accept="image/*,.pdf" style="display:none" />
+      </div>
+      
+      <div style="text-align:center; font-size:12px; color:var(--text-3); margin-bottom: 12px; text-transform:uppercase; letter-spacing: 1px;">OR PASTE TEXT</div>
+      
+      <textarea
+        id="email-input"
+        placeholder="Paste email body text or raw email source here…"
+      ></textarea>
+
+      <button class="btn-analyse btn-analyse-full" id="email-btn" onclick="checkEmail()">
+        <span id="email-btn-text">Analyse Email</span>
+        <svg id="email-btn-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" width="16" height="16">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+        </svg>
+      </button>
+
+      <div id="email-error" style="display:none" class="error-banner">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" width="18" height="18">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+        </svg>
+        <span id="email-error-msg"></span>
+      </div>
+
+      <!-- Email Result -->
+      <div id="email-result" class="result-panel">
+        <div class="result-layout">
+          <div class="gauge-container">
+            <div class="gauge-svg-wrap">
+              <svg viewBox="0 0 200 120" width="200" height="120">
+                <path class="gauge-track" d="M 20 110 A 80 80 0 0 1 180 110"/>
+                <path class="gauge-fill" id="email-gauge-fill"
+                  d="M 20 110 A 80 80 0 0 1 180 110"
+                  stroke-dasharray="251.2"
+                  stroke-dashoffset="251.2"
+                  stroke="var(--safe)"
+                />
+              </svg>
+              <div class="gauge-center-text">
+                <div class="gauge-score" id="email-gauge-score">0</div>
+                <div class="gauge-sublabel">Risk Score</div>
+              </div>
+            </div>
+            <div class="risk-badge safe" id="email-risk-badge">Analysing…</div>
+            <div class="confidence-row" id="email-confidence-row"></div>
+          </div>
+
+          <div class="reasons-section">
+            <h3>Detection Signals</h3>
+            <div id="email-reasons-list"></div>
+
+            <div id="email-links-section" style="display:none; margin-top:24px;">
+              <h3>Discovered Links (Click to Scan)</h3>
+              <div class="extracted-links-list" id="email-links-list"></div>
+            </div>
+
+            <details class="features-toggle" id="email-features-section" style="display:none">
+              <summary>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" width="14" height="14">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25H12" />
+                </svg>
+                Feature Details
+              </summary>
+              <div class="feature-grid" id="email-feature-grid"></div>
+            </details>
+            <button id="email-report-btn" class="report-btn" style="display:none; margin-top:20px;">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3v1.5M3 21v-6m0 0l2.77-.693a9 9 0 016.208.682l.108.054a9 9 0 006.086.71l3.114-.732a48.524 48.524 0 01-.005-10.499l-3.11.732a9 9 0 01-6.085-.711l-.108-.054a9 9 0 00-6.208-.682L3 4.5M3 15V4.5" /></svg>
+              Report Threat to Google Safe Browsing
+            </button>
+            <!-- AI Explanation slot -->
+            <div id="email-ai-explanation" style="display:none; margin-top:20px;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- PDF Checker Tab Panel                                  -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <div id="tab-pdf" class="tab-panel" role="tabpanel">
+    <div class="checker-card">
+
+      <!-- Drop Zone -->
+      <div id="pdf-drop-zone" class="pdf-drop-zone">
+        <div class="pdf-drop-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+          </svg>
+        </div>
+        <div class="pdf-drop-title">Drag &amp; Drop a PDF Document</div>
+        <div class="pdf-drop-sub">Supports multi-page PDFs &middot; Gemini AI analyses extracted text</div>
+        <div class="pdf-drop-tags">
+          <span class="pdf-tag">Invoice Fraud</span>
+          <span class="pdf-tag">Malicious Links</span>
+          <span class="pdf-tag">Urgency Hooks</span>
+          <span class="pdf-tag">Fake Receipts</span>
+        </div>
+        <input type="file" id="pdf-input" accept=".pdf,application/pdf" style="display:none" />
+        <button class="pdf-browse-btn" id="pdf-browse-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" width="16" height="16">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+          </svg>
+          Browse PDF File
+        </button>
+      </div>
+
+      <!-- Selected file info + analyse button -->
+      <div id="pdf-file-info" class="pdf-file-info" style="display:none">
+        <div class="pdf-file-meta">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" width="20" height="20">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+          </svg>
+          <span id="pdf-file-name">document.pdf</span>
+          <span id="pdf-file-size" class="pdf-file-size"></span>
+        </div>
+        <button class="pdf-clear-btn" id="pdf-clear-btn" title="Remove file">&times;</button>
+      </div>
+
+      <button class="btn-analyse btn-analyse-full" id="pdf-btn" onclick="checkPDF()" disabled>
+        <span id="pdf-btn-text">Analyse PDF</span>
+        <svg id="pdf-btn-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" width="16" height="16">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+        </svg>
+      </button>
+
+      <div id="pdf-error" style="display:none" class="error-banner">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" width="18" height="18">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+        </svg>
+        <span id="pdf-error-msg"></span>
+      </div>
+
+      <!-- PDF Result Panel -->
+      <div id="pdf-result" class="result-panel" style="display:none">
+        <div class="result-layout">
+          <div class="gauge-container">
+            <div class="gauge-svg-wrap">
+              <svg viewBox="0 0 200 120" width="200" height="120">
+                <path class="gauge-track" d="M 20 110 A 80 80 0 0 1 180 110"/>
+                <path class="gauge-fill" id="pdf-gauge-fill"
+                  d="M 20 110 A 80 80 0 0 1 180 110"
+                  stroke-dasharray="251.2"
+                  stroke-dashoffset="251.2"
+                  stroke="var(--safe)"
+                />
+              </svg>
+              <div class="gauge-center-text">
+                <div class="gauge-score" id="pdf-gauge-score">0</div>
+                <div class="gauge-sublabel">Risk Score</div>
+              </div>
+            </div>
+            <div class="risk-badge safe" id="pdf-risk-badge">Analysing&hellip;</div>
+            <div class="confidence-row" id="pdf-confidence-row"></div>
+          </div>
+
+          <div class="reasons-section">
+            <h3>AI Threat Assessment</h3>
+            <div id="pdf-reasons-list"></div>
+
+            <!-- Extracted text preview -->
+            <div id="pdf-text-preview" style="display:none; margin-top:20px;">
+              <h3 style="margin-bottom:10px;">Extracted Text Preview</h3>
+              <div class="pdf-text-box" id="pdf-text-content"></div>
+            </div>
+
+            <button id="pdf-report-btn" class="report-btn" style="display:none; margin-top:20px;">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3v1.5M3 21v-6m0 0l2.77-.693a9 9 0 016.208.682l.108.054a9 9 0 006.086.71l3.114-.732a48.524 48.524 0 01-.005-10.499l-3.11.732a9 9 0 01-6.085-.711l-.108-.054a9 9 0 00-6.208-.682L3 4.5M3 15V4.5" /></svg>
+              Report Threat to Google Safe Browsing
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <section class="history-section" aria-label="Recent checks">
+    <div class="history-header">
+      <h2>Recent Checks</h2>
+      <button class="btn-clear" onclick="clearHistory()">Clear</button>
+    </div>
+    <div class="history-list" id="history-list">
+      <div class="empty-history">No checks yet — paste a URL or email above to get started.</div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    Built with FastAPI, scikit-learn &amp; Gemini AI &nbsp;&middot;&nbsp;
+    <a href="/api/docs" target="_blank">API Docs</a> &nbsp;&middot;&nbsp;
+    <a href="/about.html">About &amp; Copyright</a> &nbsp;&middot;&nbsp;
+    &copy; 2026 Anagh Khandelwal
+  </footer>
+
+  <!-- ── Warning Modal Overlay ──────────────────────────────────────── -->
+  <div id="warning-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-content warning-theme">
+      <div class="modal-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        </svg>
+      </div>
+      <h2>Malicious Link Detected!</h2>
+      <p id="warning-modal-text">This link has been identified as a phishing attempt. It is highly recommended that you do not continue.</p>
+      
+      <div class="modal-actions">
+        <button class="btn-primary-danger" onclick="closeWarningModal()">Go Back (Safe)</button>
+        <button class="btn-text-danger" id="proceed-btn">Proceed Anyway (Unsafe)</button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /app-wrapper -->
+
+<script src="app.js"></script>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<!-- AI Chatbot Widget                                       -->
+<!-- ══════════════════════════════════════════════════════ -->
+<div id="chatbot-fab" onclick="toggleChat()" title="Ask PhishGuard AI">
+  <svg id="chatbot-fab-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z" />
+  </svg>
+</div>
+
+<div id="chatbot-panel" class="chatbot-panel">
+  <div class="chatbot-header">
+    <div class="chatbot-header-left">
+      <div class="chatbot-avatar">🤖</div>
+      <div>
+        <div class="chatbot-name">PhishGuard AI</div>
+        <div class="chatbot-status"><span class="status-dot"></span>Online</div>
+      </div>
+    </div>
+    <div class="chatbot-header-actions">
+      <button class="chatbot-clear-btn" onclick="clearChat()" title="Clear chat">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" width="14" height="14">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+        </svg>
+      </button>
+      <button class="chatbot-close-btn" onclick="toggleChat()">✕</button>
+    </div>
+  </div>
+
+  <div class="chatbot-messages" id="chatbot-messages">
+    <!-- Welcome message -->
+    <div class="chat-msg bot-msg">
+      <div class="chat-bubble">
+        👋 Hi! I'm <strong>PhishGuard AI</strong>, your cybersecurity assistant.<br><br>
+        Ask me anything about phishing, suspicious URLs, emails, or online safety!
+      </div>
+      <div class="chat-time">Just now</div>
+    </div>
+    <!-- Starter suggestions -->
+    <div class="chat-suggestions" id="chat-suggestions">
+      <button class="chat-suggestion-btn" onclick="sendSuggestion(this)">Is this email a scam?</button>
+      <button class="chat-suggestion-btn" onclick="sendSuggestion(this)">How do I spot phishing?</button>
+      <button class="chat-suggestion-btn" onclick="sendSuggestion(this)">What are red flags in URLs?</button>
+      <button class="chat-suggestion-btn" onclick="sendSuggestion(this)">How to stay safe online?</button>
+    </div>
+  </div>
+
+  <div class="chatbot-input-row">
+    <input
+      type="text"
+      id="chatbot-input"
+      class="chatbot-input"
+      placeholder="Ask about phishing, security…"
+      onkeydown="if(event.key==='Enter') sendChat()"
+      maxlength="500"
+    />
+    <button class="chatbot-send-btn" onclick="sendChat()" id="chatbot-send-btn">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" width="18" height="18">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
+      </svg>
+    </button>
+  </div>
+</div>
+
+</body>
+</html>
