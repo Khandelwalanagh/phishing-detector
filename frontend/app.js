@@ -2,7 +2,7 @@
    PhishGuard — Application Logic
    ============================================================ */
 
-const API = 'http://localhost:8000';
+const API = ''; // Empty string so it automatically detects localhost OR the live Render URL
 const GAUGE_CIRCUMFERENCE = 251.2; // half-circle path length
 
 // ── API Key Management ─────────────────────────────────────────
