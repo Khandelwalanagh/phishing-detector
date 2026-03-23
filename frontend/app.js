@@ -5,6 +5,32 @@
 const API = 'http://localhost:8000';
 const GAUGE_CIRCUMFERENCE = 251.2; // half-circle path length
 
+// ── API Key Management ─────────────────────────────────────────
+async function getApiKey() {
+  let key = localStorage.getItem('phishguard_api_key');
+  if (!key) {
+    try {
+      const res = await fetch(`${API}/api/keys/generate`, { method: 'POST', credentials: 'include' });
+      const data = await res.json();
+      key = data.api_key;
+      localStorage.setItem('phishguard_api_key', key);
+      console.log('[PhishGuard] API key generated and stored.');
+    } catch (e) {
+      console.warn('[PhishGuard] Could not generate API key:', e);
+      return null;
+    }
+  }
+  return key;
+}
+
+// Authenticated fetch wrapper — adds X-API-Key header automatically
+async function _apiFetch(path, opts = {}) {
+  const key = await getApiKey();
+  const headers = { ...(opts.headers || {}) };
+  if (key) headers['X-API-Key'] = key;
+  return fetch(`${API}${path}`, { ...opts, headers, credentials: 'include' });
+}
+
 // ── Utility: score → colour class ────────────────────────────
 function riskClass(score) {
   if (score < 35)  return 'safe';
@@ -288,7 +314,7 @@ function reloadCheck(type, text) {
 // ── Stats ────────────────────────────────────────────────────
 async function refreshStats() {
   try {
-    const res = await fetch(`${API}/api/stats`);
+    const res = await fetch(`${API}/api/stats`, { credentials: 'include' });
     if (!res.ok) return;
     const data = await res.json();
     document.getElementById('stat-total-urls').textContent   = data.total_url_checks   || 0;
@@ -344,7 +370,7 @@ async function checkURL() {
       } catch (e) { console.log('Deep scan warning:', e); }
     }
 
-    const res = await fetch(`${API}/api/check-url`, {
+    const res = await _apiFetch(`/api/check-url`, {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
       body:    JSON.stringify({ url: finalUrl }),
@@ -427,7 +453,7 @@ async function checkEmail() {
   document.getElementById('email-result').classList.remove('visible');
 
   try {
-    const res = await fetch(`${API}/api/check-email`, {
+    const res = await _apiFetch(`/api/check-email`, {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
       body:    JSON.stringify({ content }),
@@ -479,11 +505,13 @@ async function checkEmail() {
 }
 
 // ── Init ─────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   renderHistory();
   refreshStats();
   setInterval(refreshStats, 10000); // refresh stats every 10s
   setupFileDropZone();
+  // Ensure API key exists on page load (sets session cookie too)
+  await getApiKey();
 });
 
 // ── Gemini AI Explanation ──────────────────────────────────
@@ -504,7 +532,7 @@ async function fetchAIExplanation(type, content, score, label, reasons, targetId
     </div>`;
 
   try {
-    const res = await fetch(`${API}/api/explain`, {
+    const res = await _apiFetch(`/api/explain`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ content_type: type, content, risk_score: score, label, reasons }),
@@ -577,7 +605,7 @@ async function handleFileUpload(file) {
     formData.append('file', file);
     
     const endpoint = file.type === 'application/pdf' ? '/api/analyze-document' : '/api/analyze-vision';
-    const res = await fetch(`${API}${endpoint}`, {
+    const res = await _apiFetch(endpoint, {
       method: 'POST',
       body: formData
     });
@@ -697,7 +725,7 @@ async function checkPDF() {
     const formData = new FormData();
     formData.append('file', selectedPdfFile);
 
-    const res = await fetch(`${API}/api/analyze-document`, { method: 'POST', body: formData });
+    const res = await _apiFetch('/api/analyze-document', { method: 'POST', body: formData });
     const data = await res.json();
     if (!res.ok) throw new Error(data.detail || `HTTP ${res.status}`);
     if (!data.success) throw new Error(data.error || 'Could not analyse the PDF.');

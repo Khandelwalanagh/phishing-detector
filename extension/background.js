@@ -10,21 +10,40 @@ const API_DEFAULT = 'http://localhost:8000';
 // ── Load settings ──────────────────────────────────────────
 async function getSettings() {
   return new Promise(resolve => {
-    chrome.storage.local.get(['pg_api', 'pg_auto_scan', 'pg_notifications'], res => {
+    chrome.storage.local.get(['pg_api', 'pg_auto_scan', 'pg_notifications', 'phishguard_api_key'], res => {
       resolve({
         api:           res.pg_api           ?? API_DEFAULT,
         auto_scan:     res.pg_auto_scan     ?? true,
         notifications: res.pg_notifications ?? true,
+        api_key:       res.phishguard_api_key ?? null,
       });
     });
   });
 }
 
+// ── Get or generate API key ─────────────────────────────────
+async function getOrFetchApiKey(api) {
+  return new Promise(resolve => {
+    chrome.storage.local.get(['phishguard_api_key'], async res => {
+      if (res.phishguard_api_key) return resolve(res.phishguard_api_key);
+      try {
+        const r = await fetch(`${api}/api/keys/generate`, { method: 'POST' });
+        const data = await r.json();
+        const key = data.api_key;
+        chrome.storage.local.set({ phishguard_api_key: key });
+        resolve(key);
+      } catch { resolve(null); }
+    });
+  });
+}
+
 // ── Scan a URL via backend ─────────────────────────────────
-async function scanUrl(url, api) {
+async function scanUrl(url, api, apiKey) {
+  const headers = { 'Content-Type': 'application/json' };
+  if (apiKey) headers['X-API-Key'] = apiKey;
   const res = await fetch(`${api}/api/check-url`, {
     method:  'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers,
     body:    JSON.stringify({ url }),
   });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -152,6 +171,7 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
 
   const settings = await getSettings();
   if (!settings.auto_scan) { clearBadge(tabId); return; }
+  const apiKey = await getOrFetchApiKey(settings.api);
 
   // Fast blocklist: sites already confirmed as phishing this session
   const { pg_blocklist = [] } = await new Promise(r => chrome.storage.local.get(['pg_blocklist'], r));
@@ -161,7 +181,7 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
   }
 
   try {
-    const data = await scanUrl(url, settings.api);
+    const data = await scanUrl(url, settings.api, apiKey);
     const score = data.risk_score;
     setBadge(score, tabId);
 
@@ -206,7 +226,7 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
 });
 
 // ── Context menu: "Scan this link with PhishGuard" ────────
-chrome.runtime.onInstalled.addListener(() => {
+chrome.runtime.onInstalled.addListener(async () => {
   chrome.contextMenus.create({
     id:       'scan-link',
     title:    '🛡️ Scan link with PhishGuard',
@@ -220,6 +240,8 @@ chrome.runtime.onInstalled.addListener(() => {
     pg_notifications: true,
     pg_started_at:    Date.now(),
   });
+  // Generate and store API key on install
+  await getOrFetchApiKey(API_DEFAULT);
 });
 
 chrome.contextMenus.onClicked.addListener(async (info) => {
@@ -227,8 +249,9 @@ chrome.contextMenus.onClicked.addListener(async (info) => {
   const url = info.linkUrl;
   if (!url) return;
   const { api } = await getSettings();
+  const apiKey = await getOrFetchApiKey(api);
   try {
-    const data = await scanUrl(url, api);
+    const data = await scanUrl(url, api, apiKey);
     const label = data.label === 'phishing' ? '⚠ Phishing' : '✓ Safe';
     const score = Math.round(data.risk_score);
     chrome.notifications.create(`pg_ctx_${Date.now()}`, {

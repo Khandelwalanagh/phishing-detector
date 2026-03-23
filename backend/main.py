@@ -19,11 +19,14 @@ import time
 from contextlib import asynccontextmanager
 from typing import Optional, List, Dict
 
-from fastapi import FastAPI, HTTPException, File, UploadFile
+from fastapi import FastAPI, HTTPException, File, UploadFile, Response, Request, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
+from starlette.middleware.sessions import SessionMiddleware
 from pydantic import BaseModel, field_validator
+
+import auth as _auth
 
 # Ensure backend dir is on path
 sys.path.insert(0, os.path.dirname(__file__))
@@ -40,6 +43,7 @@ import advanced_analyzer as adv_analyzer
 # ─────────────────────────────────────────────────────────────────────────────
 
 PORT: int = int(os.environ.get("PORT", 8000))
+SESSION_SECRET: str = os.environ.get("SESSION_SECRET", "change-me-please-use-a-real-secret")
 
 # ALLOWED_ORIGINS: comma-separated list, or "*" for all (default for dev)
 _origins_env: str = os.environ.get("ALLOWED_ORIGINS", "*")
@@ -98,6 +102,15 @@ app = FastAPI(
 )
 
 app.add_middleware(
+    SessionMiddleware,
+    secret_key=SESSION_SECRET,
+    session_cookie="phishguard_session",
+    max_age=60 * 60 * 24 * 30,   # 30 days
+    https_only=False,             # set True in production (HTTPS)
+    same_site="lax",
+)
+
+app.add_middleware(
     CORSMiddleware,
     allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True,
@@ -147,10 +160,34 @@ class ExplainRequest(BaseModel):
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# API Key Endpoints
+# ─────────────────────────────────────────────────────────────────────────────
+
+@app.post("/api/keys/generate")
+def generate_key(request: Request, response: Response):
+    """
+    Generate a new signed API key and set the phishguard_session cookie.
+    The key is also returned in the JSON body so the client can store it.
+    """
+    key = _auth.generate_api_key()
+    # Store the key hash in the server-side session cookie
+    request.session["api_key_issued"] = True
+    request.session["client"] = "phishguard-web"
+    return {"api_key": key, "message": "Store this key securely. Pass it as X-API-Key header."}
+
+
+@app.get("/api/keys/validate")
+def validate_key(key: str):
+    """Check whether the provided API key is valid without consuming it."""
+    valid = _auth.validate_api_key(key)
+    return {"valid": valid}
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # Endpoints
 # ─────────────────────────────────────────────────────────────────────────────
 
-@app.post("/api/explain")
+@app.post("/api/explain", dependencies=[Depends(_auth.require_api_key)])
 async def explain_endpoint(req: ExplainRequest):
     """Uses Gemini AI to provide a human-readable explanation of a risk analysis result."""
     client = adv_analyzer.client
@@ -207,7 +244,7 @@ def whois_endpoint(domain: str):
         raise HTTPException(status_code=400, detail="Missing domain parameter")
     return adv_analyzer.get_whois(domain)
 
-@app.post("/api/analyze-vision")
+@app.post("/api/analyze-vision", dependencies=[Depends(_auth.require_api_key)])
 async def analyze_vision_endpoint(file: UploadFile = File(...)):
     if not file.content_type.startswith("image/"):
         raise HTTPException(status_code=400, detail="Invalid file type. Must be an image.")
@@ -216,7 +253,7 @@ async def analyze_vision_endpoint(file: UploadFile = File(...)):
     result = adv_analyzer.analyze_vision(contents, mime_type=file.content_type)
     return result
 
-@app.post("/api/analyze-document")
+@app.post("/api/analyze-document", dependencies=[Depends(_auth.require_api_key)])
 async def analyze_document_endpoint(file: UploadFile = File(...)):
     if file.content_type != "application/pdf":
         raise HTTPException(status_code=400, detail="Invalid file type. Must be PDF.")
@@ -251,7 +288,7 @@ def get_stats():
     }
 
 
-@app.post("/api/check-url")
+@app.post("/api/check-url", dependencies=[Depends(_auth.require_api_key)])
 def check_url(req: URLRequest):
     try:
         analysis        = analyze_url(req.url)
@@ -289,7 +326,7 @@ def check_url(req: URLRequest):
 
 
 
-@app.post("/api/check-email")
+@app.post("/api/check-email", dependencies=[Depends(_auth.require_api_key)])
 def check_email(req: EmailRequest):
     try:
         result = analyze_email(req.content)
@@ -310,7 +347,7 @@ def check_email(req: EmailRequest):
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
         
-@app.post("/api/chat")
+@app.post("/api/chat", dependencies=[Depends(_auth.require_api_key)])
 def chat_with_assistant(req: ChatRequest):
     try:
         response = llm_agent.chat_with_gemini(

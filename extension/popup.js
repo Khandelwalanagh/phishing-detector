@@ -5,7 +5,8 @@
 const API_DEFAULT    = 'http://localhost:8000';
 const GAUGE_CIRC     = 194.8;
 
-let API = API_DEFAULT;
+let API     = API_DEFAULT;
+let API_KEY = null;   // loaded from chrome.storage.local on boot
 
 // ── Boot: load settings + init ─────────────────────────────
 document.addEventListener('DOMContentLoaded', async () => {
@@ -70,8 +71,18 @@ function riskLabel(score, label) {
 
 // ── Settings ───────────────────────────────────────────────
 async function loadSettings() {
-  const res = await chrome.storage.local.get(['pg_api','pg_auto_scan','pg_tooltips','pg_intercept','pg_notifications']);
-  API = res.pg_api ?? API_DEFAULT;
+  const res = await chrome.storage.local.get(['pg_api','pg_auto_scan','pg_tooltips','pg_intercept','pg_notifications','phishguard_api_key']);
+  API     = res.pg_api ?? API_DEFAULT;
+  API_KEY = res.phishguard_api_key ?? null;
+  // Auto-generate key if missing
+  if (!API_KEY) {
+    try {
+      const r = await fetch(`${API}/api/keys/generate`, { method: 'POST' });
+      const data = await r.json();
+      API_KEY = data.api_key;
+      chrome.storage.local.set({ phishguard_api_key: API_KEY });
+    } catch {}
+  }
 }
 
 function initSettingsUI() {
@@ -197,6 +208,7 @@ function switchTab(tab) {
 // ── API calls ──────────────────────────────────────────────
 async function callApi(path, body, method='POST') {
   const opts = { method, headers: {} };
+  if (API_KEY) opts.headers['X-API-Key'] = API_KEY;
   if (body && method !== 'GET') {
     opts.headers['Content-Type'] = 'application/json';
     opts.body = JSON.stringify(body);
@@ -455,8 +467,11 @@ async function handleFileUpload(file) {
     formData.append('file', file);
     
     const endpoint = file.type === 'application/pdf' ? '/api/analyze-document' : '/api/analyze-vision';
+    const headers = {};
+    if (API_KEY) headers['X-API-Key'] = API_KEY;
     const res = await fetch(`${API}${endpoint}`, {
       method: 'POST',
+      headers,
       body: formData
     });
     
