@@ -27,6 +27,7 @@ from starlette.middleware.sessions import SessionMiddleware
 from pydantic import BaseModel, field_validator
 
 import auth as _auth
+import database as db
 
 # Ensure backend dir is on path
 sys.path.insert(0, os.path.dirname(__file__))
@@ -75,6 +76,9 @@ FRONTEND_DIR = os.path.join(
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    # Initialise DB (creates tables if missing)
+    await db.init_db()
+    print("[startup] Database initialised.")
     if not os.path.exists(ml_model.MODEL_PATH):
         print("[startup] No model found — training now …")
         try:
@@ -281,15 +285,58 @@ def version():
 
 
 @app.get("/api/stats")
-def get_stats():
+async def get_stats():
+    db_stats = await db.get_db_stats()
     return {
         **stats,
-        "uptime_s": round(time.time() - stats["started_at"]),
+        "uptime_s":       round(time.time() - stats["started_at"]),
+        "total_stored":   db_stats["total_stored"],
+        "phishing_stored": db_stats["phishing_stored"],
     }
 
 
+@app.get("/api/history")
+async def get_history(limit: int = 50, offset: int = 0):
+    """Return all previously scanned URLs from the database, newest first."""
+    rows = await db.get_scan_history(limit=limit, offset=offset)
+    total = (await db.get_db_stats())["total_stored"]
+    return {"items": rows, "total": total, "limit": limit, "offset": offset}
+
+
+@app.get("/api/url-info")
+async def get_url_info(url: str):
+    """Return cached scan result for a specific URL (if it has been scanned before)."""
+    if not url:
+        raise HTTPException(status_code=400, detail="Missing url parameter")
+    result = await db.get_cached_scan(url)
+    if result is None:
+        return {"found": False, "url": url}
+    return {"found": True, **result}
+
+
 @app.post("/api/check-url", dependencies=[Depends(_auth.require_api_key)])
-def check_url(req: URLRequest):
+async def check_url(req: URLRequest):
+    # ── Cache lookup ──────────────────────────────────
+    cached = await db.get_cached_scan(req.url)
+    if cached:
+        stats["total_url_checks"] += 1
+        if cached["label"] == "phishing":
+            stats["phishing_url_caught"] += 1
+        return {
+            "url":             req.url,
+            "risk_score":      cached["risk_score"],
+            "heuristic_score": None,
+            "ml_score":        None,
+            "label":           cached["label"],
+            "confidence":      cached["confidence"],
+            "model_source":    cached["model_source"],
+            "reasons":         cached["reasons"],
+            "features":        cached["features"],
+            "cached":          True,
+            "scan_count":      cached["scan_count"],
+        }
+
+    # ── Fresh scan ────────────────────────────────────
     try:
         analysis        = analyze_url(req.url)
         h_score         = analysis["heuristic_score"]
@@ -301,11 +348,22 @@ def check_url(req: URLRequest):
         else:
             final_score = h_score
 
-        # Derive label from blended score (more robust than ML alone at boundary)
+        # Derive label from blended score
         label = "phishing" if final_score >= 35 else "legitimate"
         confidence = round(min((final_score - 35) / 65, 1.0), 3) if label == "phishing" else round(min((35 - final_score) / 35, 1.0), 3)
 
-        # Update stats
+        # Persist to DB (background, don't block response)
+        await db.save_scan(
+            url=req.url,
+            label=label,
+            risk_score=final_score,
+            reasons=analysis["reasons"],
+            features=analysis["features"],
+            model_src=prediction["source"],
+            confidence=confidence,
+        )
+
+        # Update in-memory stats
         stats["total_url_checks"] += 1
         if label == "phishing":
             stats["phishing_url_caught"] += 1
@@ -320,6 +378,8 @@ def check_url(req: URLRequest):
             "model_source":    prediction["source"],
             "reasons":         analysis["reasons"],
             "features":        analysis["features"],
+            "cached":          False,
+            "scan_count":      1,
         }
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
