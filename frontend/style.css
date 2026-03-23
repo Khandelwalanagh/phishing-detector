@@ -49,6 +49,69 @@ body {
   min-height: 100vh;
   overflow-x: hidden;
   line-height: 1.6;
+  cursor: none; /* Hide default cursor */
+}
+
+/* ── Custom Cursor ───────────────────────────────────────── */
+#cursor-dot {
+  position: fixed;
+  top: 0; left: 0;
+  width: 8px;
+  height: 8px;
+  background: var(--accent-light);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 99999;
+  transform: translate(-50%, -50%);
+  transition: transform 0.08s ease, background 0.2s ease, width 0.2s ease, height 0.2s ease;
+  box-shadow: 0 0 8px var(--accent), 0 0 16px var(--accent-glow);
+}
+
+#cursor-ring {
+  position: fixed;
+  top: 0; left: 0;
+  width: 36px;
+  height: 36px;
+  border: 2px solid rgba(108,99,255,0.6);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 99998;
+  transform: translate(-50%, -50%);
+  transition: transform 0.18s cubic-bezier(.4,0,.2,1),
+              width 0.25s ease, height 0.25s ease,
+              border-color 0.2s ease, opacity 0.2s ease;
+  backdrop-filter: invert(5%);
+}
+
+/* On hover over buttons/links — ring expands and glows */
+body.cursor-hover #cursor-ring {
+  width: 52px;
+  height: 52px;
+  border-color: var(--accent-light);
+  box-shadow: 0 0 18px var(--accent-glow);
+}
+
+body.cursor-hover #cursor-dot {
+  width: 6px;
+  height: 6px;
+  background: #fff;
+}
+
+/* On click — ring shrinks briefly */
+body.cursor-clicking #cursor-ring {
+  width: 20px;
+  height: 20px;
+  border-color: var(--danger);
+}
+
+body.cursor-clicking #cursor-dot {
+  background: var(--danger);
+  box-shadow: 0 0 12px var(--danger);
+}
+
+/* Restore default cursor in text inputs */
+input, textarea, select {
+  cursor: text;
 }
 
 /* ── Background orbs ────────────────────────────────────── */
