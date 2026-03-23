@@ -957,7 +957,13 @@ function clearChat() {
 }
 
 // ── Particles Initialization ─────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
+window.addEventListener('load', () => {
+  // Init VanillaTilt on all tilt-enabled elements (in case library loaded after DOMContentLoaded)
+  if (typeof VanillaTilt !== 'undefined') {
+    VanillaTilt.init(document.querySelectorAll('[data-tilt]'));
+  }
+
+  // Init tsParticles cyber-network background
   if (typeof tsParticles !== 'undefined') {
     tsParticles.load("tsparticles", {
       fpsLimit: 60,
