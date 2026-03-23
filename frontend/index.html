@@ -355,7 +355,13 @@
   <section class="history-section" aria-label="Recent checks">
     <div class="history-header">
       <h2>Recent Checks</h2>
-      <button class="btn-clear" onclick="clearHistory()">Clear</button>
+      <div class="history-actions" style="display: flex; gap: 10px;">
+        <button class="btn-clear" id="export-pdf-btn" onclick="exportPDF()" style="background-color: var(--primary); color: white; border: none; padding: 6px 12px; display: flex; align-items: center; gap: 6px;">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" width="14" height="14"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
+          Export PDF
+        </button>
+        <button class="btn-clear" onclick="clearHistory()">Clear</button>
+      </div>
     </div>
     <div class="history-list" id="history-list">
       <div class="empty-history">No checks yet — paste a URL or email above to get started.</div>

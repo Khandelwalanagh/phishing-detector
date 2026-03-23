@@ -22,12 +22,14 @@ from typing import Optional, List, Dict
 from fastapi import FastAPI, HTTPException, File, UploadFile, Response, Request, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 from starlette.middleware.sessions import SessionMiddleware
 from pydantic import BaseModel, field_validator
 
 import auth as _auth
 import database as db
+import io
+from fpdf import FPDF
 
 # Ensure backend dir is on path
 sys.path.insert(0, os.path.dirname(__file__))
@@ -301,6 +303,61 @@ async def get_history(limit: int = 50, offset: int = 0):
     rows = await db.get_scan_history(limit=limit, offset=offset)
     total = (await db.get_db_stats())["total_stored"]
     return {"items": rows, "total": total, "limit": limit, "offset": offset}
+
+@app.get("/api/export/history/pdf", dependencies=[Depends(_auth.require_api_key)])
+async def export_history_pdf():
+    """Generates and downloads a PDF report of the user's scan history."""
+    rows = await db.get_scan_history(limit=1000, offset=0)
+    db_stats = await db.get_db_stats()
+    
+    pdf = FPDF()
+    pdf.add_page()
+    
+    # Title
+    pdf.set_font("helvetica", "B", 16)
+    pdf.cell(0, 10, "PhishGuard Security Report", new_x="LMARGIN", new_y="NEXT", align="C")
+    
+    pdf.set_font("helvetica", "", 10)
+    pdf.cell(0, 10, f"Generated on: {time.strftime('%Y-%m-%d %H:%M:%S')}", new_x="LMARGIN", new_y="NEXT", align="C")
+    pdf.ln(10)
+    
+    # Summary
+    pdf.set_font("helvetica", "B", 12)
+    pdf.cell(0, 10, "Summary", new_x="LMARGIN", new_y="NEXT")
+    pdf.set_font("helvetica", "", 10)
+    pdf.cell(0, 8, f"Total URLs Scanned: {db_stats['total_stored']}", new_x="LMARGIN", new_y="NEXT")
+    pdf.cell(0, 8, f"Phishing Threats Detected: {db_stats['phishing_stored']}", new_x="LMARGIN", new_y="NEXT")
+    pdf.ln(10)
+    
+    # Table Header
+    pdf.set_font("helvetica", "B", 10)
+    pdf.cell(40, 10, "Date", border=1)
+    pdf.cell(100, 10, "URL", border=1)
+    pdf.cell(25, 10, "Verdict", border=1)
+    pdf.cell(25, 10, "Score", border=1, new_x="LMARGIN", new_y="NEXT")
+    
+    # Table Rows
+    pdf.set_font("helvetica", "", 9)
+    for row in rows:
+        dt = row.get("first_seen", "")[:10] if row.get("first_seen") else "N/A"
+        url = row.get("url", "")
+        # Truncate long URLs to fit in the column
+        if len(url) > 55: url = url[:52] + "..."
+        verdict = row.get("label", "").title() if row.get("label") else "N/A"
+        score = f"{row.get('risk_score', 0):.1f}"
+        
+        pdf.cell(40, 8, dt, border=1)
+        pdf.cell(100, 8, url, border=1)
+        pdf.cell(25, 8, verdict, border=1)
+        pdf.cell(25, 8, score, border=1, new_x="LMARGIN", new_y="NEXT")
+        
+    pdf_bytes = pdf.output()
+    return StreamingResponse(
+        io.BytesIO(pdf_bytes),
+        media_type="application/pdf",
+        headers={"Content-Disposition": "attachment; filename=PhishGuard_Report.pdf"}
+    )
+
 
 
 @app.get("/api/url-info")

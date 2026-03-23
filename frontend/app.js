@@ -311,6 +311,37 @@ function reloadCheck(type, text) {
   }
 }
 
+// ── Export PDF ───────────────────────────────────────────────
+async function exportPDF() {
+  const btn = document.getElementById('export-pdf-btn');
+  const originalHtml = btn.innerHTML;
+  btn.innerHTML = '<span class="spinner" style="width:14px;height:14px;display:inline-block;vertical-align:middle;margin-right:4px;border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff;"></span> Exporting...';
+  btn.disabled = true;
+
+  try {
+    const res = await _apiFetch('/api/export/history/pdf', { method: 'GET' });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    
+    const a = document.createElement('a');
+    a.style.display = 'none';
+    a.href = url;
+    a.download = 'PhishGuard_Report.pdf';
+    document.body.appendChild(a);
+    a.click();
+    
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+  } catch (err) {
+    alert('Failed to export PDF: ' + err.message);
+  } finally {
+    btn.innerHTML = originalHtml;
+    btn.disabled = false;
+  }
+}
+
 // ── Stats ────────────────────────────────────────────────────
 async function refreshStats() {
   try {
