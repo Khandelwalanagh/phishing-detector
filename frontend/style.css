@@ -130,6 +130,21 @@ body {
   -webkit-text-fill-color: transparent;
   background-clip: text;
   margin-bottom: 18px;
+  overflow: hidden;
+  white-space: nowrap;
+  border-right: 3px solid var(--accent);
+  width: max-content;
+  margin: 0 auto 18px auto;
+  animation: typing 2.5s steps(40, end), blink-caret .75s step-end infinite;
+}
+
+@keyframes typing {
+  from { width: 0 }
+  to { width: 100% }
+}
+@keyframes blink-caret {
+  from, to { border-color: transparent }
+  50% { border-color: var(--accent); }
 }
 .hero p {
   font-size: 1.05rem;

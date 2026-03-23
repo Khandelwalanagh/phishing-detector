@@ -14,7 +14,8 @@
 </head>
 <body>
 
-<!-- Background orbs -->
+<!-- Background orbs & Particles -->
+<div id="tsparticles" style="position: fixed; inset: 0; z-index: 0; pointer-events: none;"></div>
 <div class="bg-orb bg-orb-1" aria-hidden="true"></div>
 <div class="bg-orb bg-orb-2" aria-hidden="true"></div>
 <div class="bg-orb bg-orb-3" aria-hidden="true"></div>
@@ -33,19 +34,19 @@
 
   <!-- ── Stats bar ─────────────────────────────────────────── -->
   <div class="stats-bar" id="stats-bar">
-    <div class="stat-card">
+    <div class="stat-card" data-tilt data-tilt-max="10" data-tilt-speed="400" data-tilt-glare="true" data-tilt-max-glare="0.2">
       <div class="stat-value" id="stat-total-urls">0</div>
       <div class="stat-label">URLs Checked</div>
     </div>
-    <div class="stat-card">
+    <div class="stat-card" data-tilt data-tilt-max="10" data-tilt-speed="400" data-tilt-glare="true" data-tilt-max-glare="0.2">
       <div class="stat-value" id="stat-total-emails">0</div>
       <div class="stat-label">Emails Analysed</div>
     </div>
-    <div class="stat-card">
+    <div class="stat-card" data-tilt data-tilt-max="10" data-tilt-speed="400" data-tilt-glare="true" data-tilt-max-glare="0.2">
       <div class="stat-value" id="stat-phishing-caught">0</div>
       <div class="stat-label">Threats Caught</div>
     </div>
-    <div class="stat-card">
+    <div class="stat-card" data-tilt data-tilt-max="10" data-tilt-speed="400" data-tilt-glare="true" data-tilt-max-glare="0.2">
       <div class="stat-value" id="stat-uptime">—</div>
       <div class="stat-label">Server Uptime</div>
     </div>
@@ -77,8 +78,8 @@
   <!-- URL Tab Panel                                          -->
   <!-- ══════════════════════════════════════════════════════ -->
   <div id="tab-url" class="tab-panel active" role="tabpanel">
-    <div class="checker-card">
-      <div class="input-group">
+    <div class="checker-card" data-tilt data-tilt-max="3" data-tilt-speed="400" data-tilt-glare="true" data-tilt-max-glare="0.1" style="transform-style: preserve-3d">
+      <div class="input-group" style="transform: translateZ(20px);">
         <div class="input-wrapper">
           <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" />
@@ -169,8 +170,8 @@
   <!-- Email Tab Panel                                        -->
   <!-- ══════════════════════════════════════════════════════ -->
   <div id="tab-email" class="tab-panel" role="tabpanel">
-    <div class="checker-card">
-      <div id="file-drop-zone" style="border: 2px dashed rgba(255,255,255,0.2); border-radius:12px; padding:30px; text-align:center; cursor:pointer; margin-bottom: 20px; transition: 0.3s; background:rgba(0,0,0,0.1);">
+    <div class="checker-card" data-tilt data-tilt-max="3" data-tilt-speed="400" data-tilt-glare="true" data-tilt-max-glare="0.1" style="transform-style: preserve-3d">
+      <div id="file-drop-zone" style="transform: translateZ(20px); border: 2px dashed rgba(255,255,255,0.2); border-radius:12px; padding:30px; text-align:center; cursor:pointer; margin-bottom: 20px; transition: 0.3s; background:rgba(0,0,0,0.1);">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width: 48px; height: 48px; color: var(--accent-l); margin-bottom: 12px;">
           <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
         </svg>
@@ -459,6 +460,19 @@
     </button>
   </div>
 </div>
+
+<!-- Scripts for Interactivity -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.1/vanilla-tilt.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tsparticles-engine@2/tsparticles.engine.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tsparticles-basic@2/tsparticles.basic.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tsparticles-interaction-particles-links@2/tsparticles.interaction.particles.links.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tsparticles-move-base@2/tsparticles.move.base.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tsparticles-shape-circle@2/tsparticles.shape.circle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tsparticles-updater-color@2/tsparticles.updater.color.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tsparticles-updater-opacity@2/tsparticles.updater.opacity.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tsparticles-updater-size@2/tsparticles.updater.size.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tsparticles@2/tsparticles.min.js"></script>
 
 </body>
 </html>

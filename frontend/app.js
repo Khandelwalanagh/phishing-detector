@@ -956,3 +956,25 @@ function clearChat() {
     </div>`;
 }
 
+// ── Particles Initialization ─────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  if (typeof tsParticles !== 'undefined') {
+    tsParticles.load("tsparticles", {
+      fpsLimit: 60,
+      particles: {
+        number: { value: 35, density: { enable: true, value_area: 800 } },
+        color: { value: ["#6c63ff", "#f43f5e", "#22d3a5"] },
+        links: { enable: true, color: "#6c63ff", distance: 150, opacity: 0.15, width: 1 },
+        move: { enable: true, speed: 0.8, direction: "none", random: true, straight: false, outModes: "out" },
+        size: { value: { min: 1, max: 3 } },
+        opacity: { value: { min: 0.1, max: 0.5 } }
+      },
+      interactivity: {
+        events: { onHover: { enable: true, mode: "grab" } },
+        modes: { grab: { distance: 160, links: { opacity: 0.35 } } }
+      },
+      detectRetina: true
+    });
+  }
+});
+
