@@ -228,7 +228,7 @@ Format your response as clean bullet points starting with an emoji. Be direct an
 
     try:
         response = client.models.generate_content(
-            model='gemini-2.0-flash',
+            model='gemini-3-flash-preview',
             contents=[prompt]
         )
         return {"success": True, "explanation": response.text}

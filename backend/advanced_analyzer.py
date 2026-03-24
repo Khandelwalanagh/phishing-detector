@@ -175,7 +175,7 @@ def analyze_document(pdf_bytes: bytes):
         )
         
         response = client.models.generate_content(
-            model='gemini-2.0-flash',
+            model='gemini-3-flash-preview',
             contents=[prompt, f"Document Text:\n{text_content[:8000]}"]
         )
         

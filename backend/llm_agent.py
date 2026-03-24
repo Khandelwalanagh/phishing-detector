@@ -67,7 +67,7 @@ def chat_with_gemini(user_message: str, email_context: str, history: List[Dict[s
 
     try:
         response = client.models.generate_content(
-            model='gemini-2.0-flash',
+            model='gemini-3-flash-preview',
             contents=formatted_history + [{"role": "user", "parts": [{"text": full_message}]}],
             config=genai.types.GenerateContentConfig(
                 system_instruction=SYSTEM_PROMPT,

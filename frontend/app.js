@@ -959,7 +959,7 @@ async function sendChat() {
   showTyping();
 
   try {
-    const res = await fetch(`${API}/api/chat`, {
+    const res = await _apiFetch(`/api/chat`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
